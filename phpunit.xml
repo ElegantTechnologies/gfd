@@ -1,0 +1,14 @@
+<phpunit colors="true"   bootstrap="vendor/autoload.php">
+    <testsuites>
+        <testsuite name="tests">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <var name="DB_DSN" value="mysql:dbname=tmp_eraseme_phpunitest_gfd;host=localhost" />
+        <var name="DB_USER" value="root" />
+        <var name="DB_PASSWORD" value="ofallevil" />
+        <var name="DB_HOST" value="127.0.0.1" />
+        <var name="DB_DBNAME" value="tmp_eraseme_phpunitest_gfd" />
+    </php>
+</phpunit>

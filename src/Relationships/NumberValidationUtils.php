@@ -47,7 +47,7 @@ final class NumberValidationUtils {
 
 
     public static function IsWhole($input): bool { //http://www.php.net/manual/en/function.is-int.php#82857
-        if (static::IsInteger($input) && $input >= 0) {
+        if (static::IsInteger($input.'') && $input >= 0) {
             return true;
         } else {
             return false;

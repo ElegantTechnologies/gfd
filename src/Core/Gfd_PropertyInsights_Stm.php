@@ -2,14 +2,17 @@
 declare(strict_types=1);
 namespace Gfd\Core;
 
+use ReflectionClass;
+use ReflectionProperty;
+
 trait Gfd_PropertyInsights_Stm
 {
     public static function GetPublicProperties_forClass($classNameOrObject): array {
         #$i = class_implements($classNameOrObject);
         #$n = Gfd_PropertyInsights_Interface::class;
         #\assert(in_array($n , $i));
-        $r = new \ReflectionClass($classNameOrObject);
-        $asrP = $r->getProperties(\ReflectionProperty::IS_PUBLIC);
+        $r = new ReflectionClass($classNameOrObject);
+        $asrP = $r->getProperties(ReflectionProperty::IS_PUBLIC);
         $arrP = [];
         foreach ($asrP as $p) {
             $n = $p->getName();
@@ -19,7 +22,7 @@ trait Gfd_PropertyInsights_Stm
     }
 
     public static function GetExpectTypeOfManagedProperty_forClass(string $nameOfManagedProperty, $classNameOrObject): ?string {
-        $rp = new \ReflectionProperty($classNameOrObject, $nameOfManagedProperty);
+        $rp = new ReflectionProperty($classNameOrObject, $nameOfManagedProperty);
         return $rp->getType()->getName();
 
 
@@ -41,7 +44,7 @@ trait Gfd_PropertyInsights_Stm
         //  makes untyped properties less useful from a GFD perspective.
         //  Importantly, an untyped public property will never be 'required' (cuz it is inherently nullable and defaults to null)
 
-        // FYI: public int $value; <-- if not spefically set, it will NOT be in: $asrDefaultProperties = $reflectionClass->getDefaultProperties();
+        // FYI: public int $value; <-- if not specifically set, it will NOT be in: $asrDefaultProperties = $reflectionClass->getDefaultProperties();
         //      BUT
         //      public $untypedAndUnset; <-- This will be in $asrDefaultProperties and set to null.  Which, yes, in inconsistent and unexpected.
 
@@ -56,13 +59,13 @@ trait Gfd_PropertyInsights_Stm
         return $arr;
     }
     public static function GetPublicPropertiesWithDefaults(object $classObject): array {
-        $reflectionClass = new \ReflectionClass($classObject);
+        $reflectionClass = new ReflectionClass($classObject);
         #$asrP = $reflectionClass->getProperties(\ReflectionProperty::IS_PUBLIC);
         $asrDefaultProperties = $reflectionClass->getDefaultProperties();//or {@see null} if the property doesn't have a default value
         return $asrDefaultProperties;
     }
 
-    // Gotcha: Unlike 'isset', if a property is set to 'null', or defaults to to 'null' (even implicitely like 'public $i;') so $i it won't show as here as unset, but $j (from public int $j) would.
+    // Gotcha: Unlike 'isset', if a property is set to 'null', or defaults to 'null' (even implicitly like 'public $i;') so $i it won't show as here as unset, but $j (from public int $j) would.
     public static function GetPublicPropertiesThatAreNotYetSet_forClass($classObject): array {
         $arrRequiredPublic = static::GetPublicProperties_forClass($classObject);
         $nonNullProperties = static::GetPublicPropertiesThatHaveHaveNonNullValues_forClass($classObject);
@@ -71,7 +74,7 @@ trait Gfd_PropertyInsights_Stm
         return $arrMissing;
     }
 
-    // Gotcha: Unlike 'isset', if a property is set to 'null', or defaults to to 'null' (even implicitely like 'public $i;') so $i shows up as set, but 'public int $j;' won't show as set0
+    // Gotcha: Unlike 'isset', if a property is set to 'null', or defaults to 'null' (even implicitly like `public $i;` ) so $i shows up as set, but 'public int $j;' won't show as set0
     public static function GetPublicPropertiesThatAreSet_forClass($classObject): array {
         $arrRequiredPublic = static::GetPublicProperties_forClass($classObject);
         $nonNullProperties = static::GetPublicPropertiesThatHaveHaveNonNullValues_forClass($classObject);

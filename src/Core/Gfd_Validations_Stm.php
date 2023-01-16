@@ -3,10 +3,13 @@ declare(strict_types=1);
 namespace Gfd\Core;
 
 
+use Exception;
+use TypeError;
+
 trait Gfd_Validations_Stm {
     /**
      * @param array  $scaryInputs
-     * @param  Gfd_PropertyInsights_Interface|string $classNameOrObject
+     * @param  Gfd_PropertyInsights_Interface $className
      */
     public static function PrevalidateCandidates_forClass(array $scaryInputs, string $className, bool $doExpectCompleteness): GfValid {
         foreach ($scaryInputs as $key=>$val) {
@@ -49,7 +52,7 @@ trait Gfd_Validations_Stm {
         try {
             $aMe = new $className();
             $aMe->$key = $val;
-        } catch (\TypeError $e) {
+        } catch (TypeError $e) {
             $keyType = Gfd_PropertyInsights_Stm::GetExpectTypeOfManagedProperty_forClass($key, $className);
             $typeVal = gettype($val);
             $v = GfValid::ConstructInvalid('badType', "The managed property '{$key}' expects an '{$keyType}', but but got a '$typeVal'");
@@ -71,27 +74,28 @@ trait Gfd_Validations_Stm {
     }
 
     public static function ValidateObj (object $classObject): GfValid {
-        $asrkv = Gfd_PropertyInsights_Stm::PresentPublicPropertiesAsStoopidArray($classObject);
-        return static::PrevalidateCandidates_forClass($asrkv, get_class($classObject), true);
+        $asrKeyVal = Gfd_PropertyInsights_Stm::PresentPublicPropertiesAsStoopidArray($classObject);
+        return static::PrevalidateCandidates_forClass($asrKeyVal, get_class($classObject), true);
     }
 
     /* make sure I am good, and throw exception if I'm not.
     */
     /** @ throw \Exception
-     * @return self
+     *
+     * @throws Exception
      */
-    public static function assertValidated (object $classObject) {
+    public static function assertValidated (object $classObject): object {
         // any unset properties? That would be bad.
         $arrMissing = Gfd_PropertyInsights_Stm::GetPublicPropertiesThatAreNotYetSet_forClass($classObject);
         if (count($arrMissing) > 0) {
-            throw(new \Exception());
+            throw(new Exception());
         }
 
         $asrkv = Gfd_PropertyInsights_Stm::PresentPublicPropertiesAsStoopidArray($classObject);
         foreach ($asrkv as $k=>$v) {
-            $gfv = static::PrevalidateKeyVal($k, $v);
+            $gfv = static::PrevalidateKeyVal($k, $v, $classObject::class);
             if (! $gfv->isValid()) {
-                throw(new \Exception());
+                throw(new Exception());
             }
         }
 

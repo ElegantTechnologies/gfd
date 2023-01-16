@@ -3,6 +3,8 @@ declare(strict_types=1);
 namespace Gfd\Core;
 
 
+use function assert;
+
 trait Gfd_Validations_Implementation {
     public static function PrevalidateCandidates(array $scaryInputs, bool $doExpectCompleteness): GfValid {
         return Gfd_Validations_Stm::PrevalidateCandidates_forClass($scaryInputs, static::class, $doExpectCompleteness);
@@ -24,13 +26,11 @@ trait Gfd_Validations_Implementation {
      * @ throw \Exception
      * @return self
      */
-    public function assertValidated (): self {
-        \assert(Gfd_Validations_Stm::ValidateObj($this)->isValid());
+    public function assertValidated (): static {
+        assert(Gfd_Validations_Stm::ValidateObj($this)->isValid());
         return $this;
     }
-    /** make sure I am good, and throw exception if I'm not.
-     * @ throw \Exception
-     * @return self
+    /** make sure I am good
      */
     public function getValidity (): GfValid {
         return Gfd_Validations_Stm::ValidateObj($this);

@@ -3,8 +3,7 @@
 namespace Gfd\Core;
 
 trait Gfd_SimpleInits_Implementation {
-    /** * @return self */
-    public static function InitByCorrectArray(array $uncheckedValues) : self {
+    public static function InitByCorrectArray(array $uncheckedValues) : static {
         $meName =  get_called_class();
         $that = new $meName();
         foreach ($uncheckedValues as $propertyName=>$value) {
@@ -13,7 +12,7 @@ trait Gfd_SimpleInits_Implementation {
         return $that;
     }
 
-    public static function InitByArrayStrings(array $uncheckedValues) : self {
+    public static function InitByArrayStrings(array $uncheckedValues) : static {
         $meName =  get_called_class();
         $that = new $meName();
         foreach ($uncheckedValues as $propertyName=>$value) {

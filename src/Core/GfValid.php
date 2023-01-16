@@ -8,8 +8,8 @@ class GfValid {
     protected string $enumReason = '';
     protected string $message = '';
 
-    protected $newValue;
-    protected $oldValue;
+    protected mixed $newValue;
+    protected mixed $oldValue;
     protected array $offendingValues; // A little trick to help ensure the receiver knows what to expect.
 
     public function setOffendingValues($offendingValues): self {
@@ -60,7 +60,7 @@ class GfValid {
         return $this->newValue;
     }
 
-    public function getMessage() {
+    public function getMessage(): string {
         if (empty($this->message)) {
             if (empty($this->enumReason)) {
                 return "Generically invalid";

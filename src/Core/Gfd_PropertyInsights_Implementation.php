@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace Gfd\Core;
 
 
-trait Gfd_PropertyInsights_Implementation {
+trait Gfd_PropertyInsights_Implementation{
     public static function GetRequiredProperties(): array {
         return Gfd_PropertyInsights_Stm::GetPublicProperties_forClass(get_called_class());
     }

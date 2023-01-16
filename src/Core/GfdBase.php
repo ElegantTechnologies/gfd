@@ -13,9 +13,9 @@ namespace Gfd\Core;
  *  Value validation is checked via public function propertyName_Validates($blah) : DtoValid
  *
  * class GfdPerson implements GfdBase {
- *  uses GfdBase_Implemtation;
+ *  uses GfdBase_Implementation;
  *  uses GfdBase_ValidationImplementation;
- *   Known Limitation (php limitation). If NULL is an option and you don't specify a default, then it defaults to null.
+ *   Known Limitation (php limitation). If NULL is an option, and you don't specify a default, then it defaults to null.
  *   private $i;        // this is not public - we totally ignore this.
  *   protected $j;   // this is not public - we totally ignore this.
  *   public $requiredButNotTyped; // must be set, but we won't type enforce (php handles this)

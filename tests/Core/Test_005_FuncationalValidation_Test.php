@@ -5,11 +5,8 @@ namespace TestWorld;
 
 use Gfd\Core\Gfd_PropertyInsights_Stm;
 use Gfd\Core\Gfd_Validations_Implementation;
-use Gfd\Core\Gfd_PropertyInsights_Interface;
-use Gfd\Core\Gfd_Validations_Interface;
 use Gfd\Core\GfValid;
 use PHPUnit\Framework\TestCase;
-use Gfd\Core\Gfd_SimpleInits_Interface;
 use Gfd\Core\Gfd_SimpleInits_Implementation;
 class Something0 {
     public $a;

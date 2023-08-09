@@ -3,9 +3,10 @@ declare(strict_types=1);
 namespace Gfd\Core;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
 
-final class Gfd_PropertyInsights_Stm
+final class Gfd_ManagedProperties_Listing_meets_classReflections_Stm
 {
     public static function GetPublicProperties_forClass($classNameOrObject): array {
         #$i = class_implements($classNameOrObject);
@@ -21,24 +22,25 @@ final class Gfd_PropertyInsights_Stm
         return $arrP;
     }
 
-    public static function GetExpectTypeOfManagedProperty_forClass(string $nameOfManagedProperty, $classNameOrObject): ?string {
+    public static function GetExpectTypeOfNamedManagedProperty_forClass(string $nameOfManagedProperty, $classNameOrObject): ?string {
+
         $rp = new ReflectionProperty($classNameOrObject, $nameOfManagedProperty);
         return $rp->getType()->getName();
 
 
     }
-    public static function IsManagedProperty_ofClassName(string $nameOfManagedProperty, string $className): bool {
-        $arrManagedProperties = static::GetPublicProperties_forClass($className);
+    public static function IsNamedManagedProperty_ofNamedClass(string $nameOfManagedProperty, string $className): bool {
+        $arrManagedProperties = self::GetPublicProperties_forClass($className);
         return in_array($nameOfManagedProperty, $arrManagedProperties);
     }
 
-    public static function IsManagedProperty_ofObj(string $nameOfManagedProperty, object $obj): bool {
-        $arrManagedProperties = static::GetPublicProperties_forClass($obj);
+    public static function IsNamedManagedProperty_ofObj(string $nameOfManagedProperty, object $obj): bool {
+        $arrManagedProperties = self::GetPublicProperties_forClass($obj);
         return in_array($nameOfManagedProperty, $arrManagedProperties);
     }
 
 
-    public static function GetPublicPropertiesThatHaveHaveNonNullValues_forClass(object $classObject): array {
+    public static function GetPublicPropertiesThatHaveHaveNonNullValues_ofNamedClass(object $classObject): array {
         // Gotcha: PHP makes untyped properties automatically nullable AND they default to NULL. This is unlike
         //  typed properties, where even 'public ?int $armsUnset_nullable;' won't default to null. This
         //  makes untyped properties less useful from a GFD perspective.
@@ -48,7 +50,7 @@ final class Gfd_PropertyInsights_Stm
         //      BUT
         //      public $untypedAndUnset; <-- This will be in $asrDefaultProperties and set to null.  Which, yes, in inconsistent and unexpected.
 
-        $arrRequiredPublic = static::GetPublicProperties_forClass($classObject);
+        $arrRequiredPublic = self::GetPublicProperties_forClass($classObject);
         $arr =[];
         foreach ($arrRequiredPublic as $propertyName) {
             $isset = isset($classObject->$propertyName);
@@ -58,34 +60,49 @@ final class Gfd_PropertyInsights_Stm
         }
         return $arr;
     }
-    public static function GetPublicPropertiesWithDefaults(object $classObject): array {
-        $reflectionClass = new ReflectionClass($classObject);
+
+    /**
+     * @throws ReflectionException
+     */
+    public static function GetPublicPropertiesWithDefaults_ofClass($objectOrClassName): array {
+        $reflectionClass = new ReflectionClass($objectOrClassName);
         #$asrP = $reflectionClass->getProperties(\ReflectionProperty::IS_PUBLIC);
         $asrDefaultProperties = $reflectionClass->getDefaultProperties();//or {@see null} if the property doesn't have a default value
         return $asrDefaultProperties;
     }
 
     // Gotcha: Unlike 'isset', if a property is set to 'null', or defaults to 'null' (even implicitly like 'public $i;') so $i it won't show as here as unset, but $j (from public int $j) would.
-    public static function GetPublicPropertiesThatAreNotYetSet_forClass($classObject): array {
-        $arrRequiredPublic = static::GetPublicProperties_forClass($classObject);
-        $nonNullProperties = static::GetPublicPropertiesThatHaveHaveNonNullValues_forClass($classObject);
-        $asrPropertiesDefaults = static::GetPublicPropertiesWithDefaults($classObject);
+
+    /**
+     * @throws ReflectionException
+     */
+    public static function GetPublicPropertiesThatAreNotYetSet_forClass($objectOrClassName): array {
+        $arrRequiredPublic = self::GetPublicProperties_forClass($objectOrClassName);
+        $nonNullProperties = self::GetPublicPropertiesThatHaveHaveNonNullValues_ofNamedClass($objectOrClassName);
+        $asrPropertiesDefaults = self::GetPublicPropertiesWithDefaults_ofClass($objectOrClassName);
         $arrMissing = array_diff($arrRequiredPublic, $nonNullProperties, array_keys($asrPropertiesDefaults));
         return $arrMissing;
     }
 
     // Gotcha: Unlike 'isset', if a property is set to 'null', or defaults to 'null' (even implicitly like `public $i;` ) so $i shows up as set, but 'public int $j;' won't show as set0
+
+    /**
+     * @throws ReflectionException
+     */
     public static function GetPublicPropertiesThatAreSet_forClass($classObject): array {
-        $arrRequiredPublic = static::GetPublicProperties_forClass($classObject);
-        $nonNullProperties = static::GetPublicPropertiesThatHaveHaveNonNullValues_forClass($classObject);
-        $asrPropertiesDefaults = static::GetPublicPropertiesWithDefaults($classObject);
+        $arrRequiredPublic = self::GetPublicProperties_forClass($classObject);
+        $nonNullProperties = self::GetPublicPropertiesThatHaveHaveNonNullValues_ofNamedClass($classObject);
+        $asrPropertiesDefaults = self::GetPublicPropertiesWithDefaults_ofClass($classObject);
         $arrUnion = array_unique(array_merge($nonNullProperties, array_keys($asrPropertiesDefaults)));
         $arrUnion = array_intersect($arrUnion, $arrRequiredPublic);
         return $arrUnion;
     }
 
-    public static function PresentPublicPropertiesAsStoopidArray(object $classObject): array {
-        $arrSetProperties = static::GetPublicPropertiesThatAreSet_forClass($classObject);
+    /**
+     * @throws ReflectionException
+     */
+    public static function PresentPublicPropertiesAsStoopidKeyValArray(object $classObject): array {
+        $arrSetProperties = self::GetPublicPropertiesThatAreSet_forClass($classObject);
         $arr = [];
         foreach ($arrSetProperties as $propertyName) {
             $arr[$propertyName] = $classObject->$propertyName;

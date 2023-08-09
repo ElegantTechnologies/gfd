@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace TestWorld;
 
+use Gfd\Core\Gfd_Validatable_Interface;
 use Gfd\Core\Gfd_Validations_ImplementationViaMethodsStrategy_Stm;
 use Gfd\Core\Gfd_ManagedProperties_SetStatusProvider_Interface;
 use Gfd\Core\GfValid;
@@ -10,96 +11,138 @@ use PHPUnit\Framework\TestCase;
 use Gfd\Core\Gfd_SimpleInits_Interface;
 use Gfd\Core\Gfd_SimpleInits_Implementation;
 
-class GfdPerson
-{
-    use Gfd_SimpleInits_Implementation;
-    use Gfd_Validations_ImplementationViaMethodsStrategy_Stm;
+class MethodTester1 extends GfdMethodBase {
 
-
-    private $x;        // this is not public - we totally ignore this.
-
-    // public: Type test
-    public ?int $armsUnset_nullable;
-    public int $feetUnset;
-    public ?int $legsSetTo2_nullable = 2;
-    public ?int $legsSetToNull_nullable = null;
-
-
-    // public, untyped
-    // Gotcha: PHP makes untyped properties automatically nullable AND they default to NULL. This is unlike
-    //  typed properties, where even 'public ?int $armsUnset_nullable;' won't default to null. This
-    //  makes untyped properties less useful from a GFD perspective.
-    //  Importantly, an untyped public property will never be 'required' (cuz it is inherently nullable and defaults to null)
-
-    public $requiredButNotTyped;   // must be set, but we won't type enforce (php handles this if we access before set)
-    public $notRequiredToBeSpecificallySetCuzDefaultsToNull = null;  // optionally set, but we won't type enforce  (php handles this)
-    public $notRequiredToBeSpecificallySetCuzDefaultsToZeroNotTyped = 0;  // optionally set (it defaults to zero), but we won't type enforce  (php handles this)
-
-    // public, typed
-    public string $name;    // optionally set, but we won't type enforce.   (php handles this)
-    public ?int $age; // Must always be specified before using, but can be null (implies we don't know it).
-    public int $numEyes = 2;    /* We might, or might not, know the age, and we'll assume that we do know it, unless otherwise specified
-                                 * We'll use a custom validator below to keep it between 0 and 2 */
-    public bool $likesIceCream = true;
-
-    // protected (
-    protected $j; // Not type enforced, but required;
-    protected int $stuff;
-
-    public static function numEyes_Validates($wellTypedButOtherwiseUntrustedValue): GfValid
+     public static function GetManagedPropertyNames(): array
     {
-        return GfValid::ConstructFromBool(($wellTypedButOtherwiseUntrustedValue >= 0 && $wellTypedButOtherwiseUntrustedValue <= 2));
-
-   }
+        return ['var1', 'var2'];
+    }
+     public static function GetManagedPropertyDefaults(): array
+    {
+        return [
+            'var2' => -1,
+        ];
+    }
+      public static function GetManagedPropertyNames2Types(): array
+    {
+        return [
+            'var1' =>   'string',
+            'var2'=>    'int'
+        ];
+    }
 }
-
-class GfdAdult extends GfdPerson
+abstract class GfdMethodBase implements Gfd_Validatable_Interface
 {
-    public static function age_Validates($wellTypedButOtherwiseUntrustedValue): GfValid
+
+    abstract public static function GetManagedPropertyNames(): array;
+
+    abstract public static function GetManagedPropertyDefaults(): array;
+
+    abstract  public static function GetManagedPropertyNames2Types(): array;
+
+
+
+    public static function GetManagedPropertiesThatHaveDefaults(): array {
+        return array_keys(static::GetManagedPropertyDefaults());
+    }
+
+
+    public static function IsSpecifiedName_thatOfAManagedProperty(string $nameOfManagedProperty): bool
     {
-        return GfValid::ConstructFromBool(($wellTypedButOtherwiseUntrustedValue >= 21), 'WrongAge');
+        return in_array($nameOfManagedProperty, static::GetManagedPropertyNames());
+    }
+
+    /** @param array<string> */
+    protected static function EnsureNoMissingProperties(array $varNames) {
+        $arrRequiredPublic = static::GetManagedPropertyNames();
+        //$nonNullProperties = self::GetPublicPropertiesThatHaveHaveNonNullValues_ofNamedClass($objectOrClassName);
+        $arrPropertiesDefaults = static::GetManagedPropertiesThatHaveDefaults();
+        //$arrMissing = array_diff($arrRequiredPublic, $nonNullProperties, array_keys($asrPropertiesDefaults));
+        $arrMissing = array_diff($arrRequiredPublic, $arrPropertiesDefaults);
+        if (count($arrMissing) > 0) {
+            $v = GfValid::ConstructInvalid('Missing Values');
+            $v->setOffendingValues($arrMissing);
+            return $v;
+        }
+        return GfValid::ConstructValid();
+    }
+
+
+    public static function PrevalidateCandidates(array $scaryInputs, bool $doExpectCompleteness): GfValid
+    {
+        foreach ($scaryInputs as $key=>$val) {
+            $gfv =  static::PrevalidateKeyVal($key,$val);
+            if (! $gfv->isValid()) {
+                return $gfv;
+            }
+        }
+
+        if ($doExpectCompleteness) {
+            $gfv = static::ensureNoMissingProperties(array_keys($scaryInputs));
+            if (! $gfv->isValid()) {
+                return $gfv;
+            }
+        }
+
+        return GfValid::ConstructValid();
+    }
+
+    //    public function getValidity(): GfValid
+    //    {
+    //        foreach (self::GetManagedPropertyNames() as $managedPropertyName) {
+    //            if (! isset($this->$$managedPropertyName)) {
+    //                return GfValid::ConstructInvalid("NotSEt($managedPropertyName)");
+    //            }
+    //        }
+    //        return GfValid::ConstructValid();
+    //    }
+    protected static function Validate_Custom(string $key, $val): GfValid {
+        $methodNameThatWouldStaticallyValidate = "Validates_{$key}";
+        if (method_exists(get_called_class(),$methodNameThatWouldStaticallyValidate)) {
+            /** @var GfValid $gfv */
+            $gfv = static::$methodNameThatWouldStaticallyValidate($val);
+            $gfv->setOffendingValues([$key]);
+            if (! $gfv->isValid()) {
+                return $gfv;
+            }
+        }
+        return GfValid::ConstructValid();
+    }
+    protected static function PrevalidateKeyVal(string $key, $val): GfValid {
+        if (! self::IsSpecifiedName_thatOfAManagedProperty($key)) {
+            $v = GfValid::ConstructInvalid('extraField');
+            $v->setOffendingValues([$key]);
+            return $v;
+        }
+
+        // type good
+        $asr = static::GetManagedPropertyNames2Types();
+        $expectedType = $asr[$key];
+        $actualType = gettype($val);
+        if ($actualType != $expectedType) {
+            $v = GfValid::ConstructInvalid("WrongType: Expected $expectedType, Got $actualType");
+            $v->setOffendingValues([$key]);
+            return $v;
+        }
+
+        // functionally good
+        $v = static::Validate_Custom($key,$val);
+        if (! $v->isValid()) {
+            return $v;
+        }
+
+        return GfValid::ConstructValid();
     }
 }
 
-
-class Test_006_Sample_Test extends TestCase
+class Test_006v_Sample_Test extends TestCase
 {
 
 
     function testType2()
     {
-        $jj = new GfdAdult();
-        $jj->age = 49; // ok - straight php
-        //$jj->age = '49'; php type error
-        $jj->name = 'JJ'; // ok - straight php
-
-        $jj = GfdAdult::InitByCorrectArray(['name' => 'JJ', 'age' => 49]); //ok
-        $maddie = GfdAdult::InitByCorrectArray(['name' => 'JJ', 'age' => 13]);  //ok, cuz init doesn't error check
-
-        $gfv = GfdAdult::PrevalidateCandidates(['name' => 'Maddie', 'age' => 13], false);// will get bad result per age
-        $this->assertFalse($gfv->isValid());
-        $jj = GfdAdult::InitByCorrectArray(['name' => 'JJ', 'age' => 19]);
-        $gfv = $jj->getValidity();
-        $this->assertFalse($gfv->isValid());
-        $this->assertTrue($gfv->getReason() == 'WrongAge', 'must be 21');
-        $jj->armsUnset_nullable = 2;
-        $jj->feetUnset = 2;
-        $gfv = $jj->getValidity();
-        $this->assertFalse($gfv->isValid());
-        $this->assertTrue($gfv->getReason() == 'WrongAge');
-        $jj->age = 39; // now fix the age
-        $gfv = $jj->getValidity();
-        $this->assertTrue($gfv->isValid());
-
-
-
-        $gfv = GfdAdult::PrevalidateCandidates(['name' => 'JJ', 'age' => 49], false);// will get bad result per age
-        $jj->armsUnset_nullable = 2;
-        $jj->feetUnset = 2;
-        $this->assertTrue($gfv->isValid());
-
-
-//        $jj = CfdAdult::InitByCorrectArray(['name'=>'Maddie', 'age'=>13])->ValidateSelf(); // throws exception
+        $o = new GfdPersonv();
+        $this->assertTrue(is_array(GfdPersonv::));
     }
 
 

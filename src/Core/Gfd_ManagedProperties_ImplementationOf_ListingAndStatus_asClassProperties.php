@@ -3,21 +3,30 @@ declare(strict_types=1);
 namespace Gfd\Core;
 
 
-trait Gfd_PropertyInsights_Implementation{
-    public static function GetRequiredProperties(): array {
-        return Gfd_PropertyInsights_Stm::GetPublicProperties_forClass(get_called_class());
+trait Gfd_ManagedProperties_ImplementationOf_ListingAndStatus_asClassProperties{
+    public static function GetManagedPropertyNames(): array {
+        return Gfd_ManagedProperties_Listing_meets_classReflections_Stm::GetPublicProperties_forClass(get_called_class());
+    }
+    public static function IsSpecifiedName_thatOfAManagedProperty(string $nameOfManagedProperty): bool
+    {
+        return Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofNamedClass($nameOfManagedProperty, get_called_class());
+    }
+    public function getManagedPropertiesThatAreSet_butExcludeNullValues(): array {
+        return Gfd_ManagedProperties_Listing_meets_classReflections_Stm::GetPublicPropertiesThatHaveHaveNonNullValues_ofNamedClass($this);
     }
 
-    public function getRequiredPropertiesWithNonNullValues(): array {
-        return Gfd_PropertyInsights_Stm::GetPublicPropertiesThatHaveHaveNonNullValues_forClass($this);
+    /**
+     * @throws \ReflectionException
+     */
+    public function getManagedPropertiesThatAreNotYetSet(): array {
+        return Gfd_ManagedProperties_Listing_meets_classReflections_Stm::GetPublicPropertiesThatAreNotYetSet_forClass($this);
     }
 
-    public function getRequiredPropertiesThatAreNotYetSet(): array {
-        return Gfd_PropertyInsights_Stm::GetPublicPropertiesThatAreNotYetSet_forClass($this);
-    }
-
-    public function getRequiredPropertiesThatAreSet(): array {
-        return Gfd_PropertyInsights_Stm::GetPublicPropertiesThatAreSet_forClass($this);
+    /**
+     * @throws \ReflectionException
+     */
+    public function getManagedPropertiesThatAreSet_butIncludeNullValues(): array {
+        return Gfd_ManagedProperties_Listing_meets_classReflections_Stm::GetPublicPropertiesThatAreSet_forClass($this);
     }
 
 

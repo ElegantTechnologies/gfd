@@ -2,13 +2,11 @@
 declare(strict_types=1);
 namespace Gfd\Core;
 
-interface Gfd_ManagedPropertyInsights_Interface
+interface Gfd_ManagedProperties_ListingProvider_Interface
 {
-    public static function GetRequiredProperties(): array;
+    public static function GetManagedPropertyNames(): array;
+    public static function IsSpecifiedName_thatOfAManagedProperty(string $nameOfManagedProperty): bool;
+    /** @returns array[string] = string */
+    public static function GetManagedPropertyNames2Types(): array;
 
-    public function getRequiredPropertiesWithNonNullValues(): array;
-
-    public function getRequiredPropertiesThatAreNotYetSet(): array;
-
-    public function getRequiredPropertiesThatAreSet(): array;
 }

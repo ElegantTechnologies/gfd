@@ -6,12 +6,12 @@ namespace Gfd\Core;
 use Exception;
 use TypeError;
 
-class T implements Gfd_Validations_Interface
+class T implements Gfd_Validatable_Interface
 {
-    use Gfd_Validations_implementationViaEmbeddedClassReflectionStrategy_Stm;
+    use Gfd_Validable_implementationViaEmbeddedClassReflectionStrategy_Stm;
 
 }
-trait Gfd_Validations_implementationViaEmbeddedClassReflectionStrategy_Stm {
+trait Gfd_Validable_implementationViaEmbeddedClassReflectionStrategy_Stm {
     public static function PrevalidateCandidates(array $scaryInputs, bool $doExpectCompleteness): GfValid {
         return self::PrevalidateCandidates_forClass($scaryInputs, get_called_class(), $doExpectCompleteness);
     }

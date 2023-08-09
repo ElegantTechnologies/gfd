@@ -5,7 +5,7 @@ namespace TestWorld;
 
 use Gfd\Core\Gfd_Validations_ImplementationViaMethodsStrategy_Stm;
 use Gfd\Core\Gfd_ManagedProperties_SetStatusProvider_Interface;
-use Gfd\Core\Gfd_Validations_Interface;
+use Gfd\Core\Gfd_Validatable_Interface;
 use Gfd\Core\GfValid;
 use PHPUnit\Framework\TestCase;
 use Gfd\Core\Gfd_SimpleInits_Interface;

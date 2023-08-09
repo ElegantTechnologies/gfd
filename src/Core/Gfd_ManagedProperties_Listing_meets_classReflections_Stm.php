@@ -5,7 +5,7 @@ namespace Gfd\Core;
 use ReflectionClass;
 use ReflectionProperty;
 
-trait Gfd_PropertyInsights_Stm
+final class Gfd_PropertyInsights_Stm
 {
     public static function GetPublicProperties_forClass($classNameOrObject): array {
         #$i = class_implements($classNameOrObject);

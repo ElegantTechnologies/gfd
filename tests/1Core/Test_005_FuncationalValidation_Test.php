@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace TestWorld;
 
-use Gfd\Core\Gfd_PropertyInsights_Stm;
-use Gfd\Core\Gfd_Validations_Implementation;
+use Gfd\Core\Gfd_ManagedProperties_Listing_meets_classReflections_Stm;
+use Gfd\Core\Gfd_Validations_ImplementationViaMethodsStrategy_Stm;
 use Gfd\Core\GfValid;
 use PHPUnit\Framework\TestCase;
 use Gfd\Core\Gfd_SimpleInits_Implementation;
@@ -15,7 +15,7 @@ class Something0 {
 class Something1
 {
     use Gfd_SimpleInits_Implementation;
-    use Gfd_Validations_Implementation;
+    use Gfd_Validations_ImplementationViaMethodsStrategy_Stm;
 
     public int $value;
 
@@ -29,21 +29,21 @@ class Something1
 class Test_005_FuncationalValidation_Test extends TestCase
 {
     function testPropertyThere() {
-        $this->assertTrue(Gfd_PropertyInsights_Stm::IsManagedProperty_ofClassName('a',Something0::class));
-        $this->assertFalse(Gfd_PropertyInsights_Stm::IsManagedProperty_ofClassName('z',Something0::class));
+        $this->assertTrue(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofNamedClass('a',Something0::class));
+        $this->assertFalse(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofNamedClass('z',Something0::class));
 
         $o = new Something0();
-        $this->assertTrue(Gfd_PropertyInsights_Stm::IsManagedProperty_ofObj('a',$o));
-        $this->assertFalse(Gfd_PropertyInsights_Stm::IsManagedProperty_ofObj('z',$o));
+        $this->assertTrue(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofObj('a',$o));
+        $this->assertFalse(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofObj('z',$o));
     }
 
     function testProposedKVs() {
-        $this->assertTrue(Gfd_PropertyInsights_Stm::IsManagedProperty_ofClassName('a',Something0::class));
-        $this->assertFalse(Gfd_PropertyInsights_Stm::IsManagedProperty_ofClassName('z',Something0::class));
+        $this->assertTrue(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofNamedClass('a',Something0::class));
+        $this->assertFalse(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofNamedClass('z',Something0::class));
 
         $o = new Something0();
-        $this->assertTrue(Gfd_PropertyInsights_Stm::IsManagedProperty_ofObj('a',$o));
-        $this->assertFalse(Gfd_PropertyInsights_Stm::IsManagedProperty_ofObj('z',$o));
+        $this->assertTrue(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofObj('a',$o));
+        $this->assertFalse(Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofObj('z',$o));
     }
 
 

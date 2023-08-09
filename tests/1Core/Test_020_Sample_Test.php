@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace TestWorld;
 
-use Gfd\Core\Gfd_Validations_Implementation;
-use Gfd\Core\Gfd_PropertyInsights_Interface;
+use Gfd\Core\Gfd_Validations_ImplementationViaMethodsStrategy_Stm;
+use Gfd\Core\Gfd_ManagedProperties_SetStatusProvider_Interface;
 use Gfd\Core\GfValid;
 use PHPUnit\Framework\TestCase;
 use Gfd\Core\Gfd_SimpleInits_Interface;
@@ -13,7 +13,7 @@ use Gfd\Core\Gfd_SimpleInits_Implementation;
 class GfdPerson
 {
     use Gfd_SimpleInits_Implementation;
-    use Gfd_Validations_Implementation;
+    use Gfd_Validations_ImplementationViaMethodsStrategy_Stm;
 
 
     private $x;        // this is not public - we totally ignore this.

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Gfd\Core;
 
-interface Gfd_PropertyInsights_Interface
+interface Gfd_ManagedPropertyInsights_Interface
 {
     public static function GetRequiredProperties(): array;
 

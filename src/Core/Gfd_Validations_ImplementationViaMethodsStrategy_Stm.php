@@ -5,9 +5,9 @@ namespace Gfd\Core;
 
 use function assert;
 
-trait Gfd_Validations_Implementation {
+trait Gfd_Validations_ImplementationViaEmbeddedClassReflectionStrategy {
     public static function PrevalidateCandidates(array $scaryInputs, bool $doExpectCompleteness): GfValid {
-        return Gfd_Validations_Stm::PrevalidateCandidates_forClass($scaryInputs, static::class, $doExpectCompleteness);
+        return Gfd_Validations_implementationViaEmbeddedClassReflectionStrategy_Stm::PrevalidateCandidates($scaryInputs, $doExpectCompleteness);
     }
 
     //    public static function GetRequiredProperties(): array {
@@ -27,12 +27,12 @@ trait Gfd_Validations_Implementation {
      * @return self
      */
     public function assertValidated (): static {
-        assert(Gfd_Validations_Stm::ValidateObj($this)->isValid());
+        assert(Gfd_Validations_implementationViaEmbeddedClassReflectionStrategy_Stm::ValidateObj($this)->isValid());
         return $this;
     }
     /** make sure I am good
      */
     public function getValidity (): GfValid {
-        return Gfd_Validations_Stm::ValidateObj($this);
+        return Gfd_Validations_implementationViaEmbeddedClassReflectionStrategy_Stm::ValidateObj($this);
     }
 }

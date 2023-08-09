@@ -6,12 +6,30 @@ namespace Gfd\Core;
 use Exception;
 use TypeError;
 
-trait Gfd_Validations_Stm {
+class T implements Gfd_Validations_Interface
+{
+    use Gfd_Validations_implementationViaEmbeddedClassReflectionStrategy_Stm;
+
+}
+trait Gfd_Validations_implementationViaEmbeddedClassReflectionStrategy_Stm {
+    public static function PrevalidateCandidates(array $scaryInputs, bool $doExpectCompleteness): GfValid {
+        return self::PrevalidateCandidates_forClass($scaryInputs, get_called_class(), $doExpectCompleteness);
+    }
+
+    public function getValidity(): GfValid
+    {
+        return self::ValidateObj($this);
+    }
+    private static function ValidateObj (object $classObject): GfValid {
+        $asrKeyVal = Gfd_ManagedProperties_Listing_meets_classReflections_Stm::PresentPublicPropertiesAsStoopidKeyValArray($classObject);
+        return static::PrevalidateCandidates_forClass($asrKeyVal, get_class($classObject), true);
+    }
+
     /**
      * @param array  $scaryInputs
-     * @param  Gfd_PropertyInsights_Interface $className
+     * @param  Gfd_ManagedProperties_SetStatusProvider_Interface $className
      */
-    public static function PrevalidateCandidates_forClass(array $scaryInputs, string $className, bool $doExpectCompleteness): GfValid {
+    private static function PrevalidateCandidates_forClass(array $scaryInputs, string $className, bool $doExpectCompleteness): GfValid {
         foreach ($scaryInputs as $key=>$val) {
             $gfv =  static::PrevalidateKeyVal($key,$val, $className);
             if (! $gfv->isValid()) {
@@ -30,8 +48,10 @@ trait Gfd_Validations_Stm {
         return GfValid::ConstructValid();
     }
 
-    public static function ensureNoMissingProperties(array $arrCandidatePropertyNames, $classNameOrObject): GfValid {
-        $arrManagedPropertyNames = Gfd_PropertyInsights_Stm::GetPublicProperties_forClass($classNameOrObject);
+    /** @param Gfd_ManagedProperties_ListingProvider_Interface $classNameOrObject */
+    private static function ensureNoMissingProperties(array $arrCandidatePropertyNames, $classNameOrObject): GfValid {
+        assert(in_array(Gfd_ManagedProperties_ListingProvider_Interface::class, class_implements($classNameOrObject)));
+        $arrManagedPropertyNames = $classNameOrObject::GetManagedPropertyNames();
         $missingFields = array_diff($arrManagedPropertyNames, $arrCandidatePropertyNames);
         if (count($missingFields) > 0 ) {
             $gfv = GfValid::ConstructInvalid('missingFields');
@@ -41,8 +61,8 @@ trait Gfd_Validations_Stm {
         return GfValid::ConstructValid();
     }
 
-    public static function PrevalidateKeyVal(string $key, $val, string $className): GfValid {
-        if (! Gfd_PropertyInsights_Stm::IsManagedProperty_ofClassName($key, $className)) {
+    private static function PrevalidateKeyVal(string $key, $val, string $className): GfValid {
+        if (! Gfd_ManagedProperties_Listing_meets_classReflections_Stm::IsNamedManagedProperty_ofNamedClass($key, $className)) {
             $v = GfValid::ConstructInvalid('extraField');
             $v->setOffendingValues([$key]);
             return $v;
@@ -53,7 +73,7 @@ trait Gfd_Validations_Stm {
             $aMe = new $className();
             $aMe->$key = $val;
         } catch (TypeError $e) {
-            $keyType = Gfd_PropertyInsights_Stm::GetExpectTypeOfManagedProperty_forClass($key, $className);
+            $keyType = Gfd_ManagedProperties_Listing_meets_classReflections_Stm::GetExpectTypeOfNamedManagedProperty_forClass($key, $className);
             $typeVal = gettype($val);
             $v = GfValid::ConstructInvalid('badType', "The managed property '{$key}' expects an '{$keyType}', but but got a '$typeVal'");
             $v->setOffendingValues([$key]);
@@ -73,10 +93,6 @@ trait Gfd_Validations_Stm {
         return GfValid::ConstructValid();
     }
 
-    public static function ValidateObj (object $classObject): GfValid {
-        $asrKeyVal = Gfd_PropertyInsights_Stm::PresentPublicPropertiesAsStoopidArray($classObject);
-        return static::PrevalidateCandidates_forClass($asrKeyVal, get_class($classObject), true);
-    }
 
     /* make sure I am good, and throw exception if I'm not.
     */
@@ -84,14 +100,14 @@ trait Gfd_Validations_Stm {
      *
      * @throws Exception
      */
-    public static function assertValidated (object $classObject): object {
+    private static function assertValidated (object $classObject): object {
         // any unset properties? That would be bad.
-        $arrMissing = Gfd_PropertyInsights_Stm::GetPublicPropertiesThatAreNotYetSet_forClass($classObject);
+        $arrMissing = Gfd_ManagedProperties_Listing_meets_classReflections_Stm::GetPublicPropertiesThatAreNotYetSet_forClass($classObject);
         if (count($arrMissing) > 0) {
             throw(new Exception());
         }
 
-        $asrkv = Gfd_PropertyInsights_Stm::PresentPublicPropertiesAsStoopidArray($classObject);
+        $asrkv = Gfd_ManagedProperties_Listing_meets_classReflections_Stm::PresentPublicPropertiesAsStoopidKeyValArray($classObject);
         foreach ($asrkv as $k=>$v) {
             $gfv = static::PrevalidateKeyVal($k, $v, $classObject::class);
             if (! $gfv->isValid()) {

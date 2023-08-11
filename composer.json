@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0,^8.2",
         "ramsey/uuid": "^4.1",
         "robinvdvleuten/ulid": "^5.0"
     },

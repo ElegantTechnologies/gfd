@@ -1,7 +1,7 @@
 <?php
 namespace Gfd\Utils;
 
-class ArrayStm {
+final class ArrayStm {
     //	 * determine if the values of first array make up a subset of the second.  Is each member of the first array in the second array.
     //	 * This ignores the keys
     /*

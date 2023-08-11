@@ -6,7 +6,7 @@ namespace Gfd\Core;
 use Exception;
 use TypeError;
 
-trait Gfd_Validations_Stm {
+final class Gfd_Validations_Stm {
     /**
      * @param array  $scaryInputs
      * @param  Gfd_PropertyInsights_Interface $className

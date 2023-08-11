@@ -2,7 +2,9 @@
 declare(strict_types=1);
 trait JDbTester_Implementation {
     public array $tbls = [];
-
+    public string $IdName;
+    public int $XFactor;
+    public string $PureComment = '';
     public function trackDoomedTable(string $tableName_thatTearDownShouldDelete): void {
         $this->tbls[] = $tableName_thatTearDownShouldDelete;
     }
